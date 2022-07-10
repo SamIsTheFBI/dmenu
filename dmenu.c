@@ -876,9 +876,16 @@ setup(void)
 	swa.background_pixel = scheme[SchemeNorm][ColBg].pixel;
 	swa.event_mask = ExposureMask | KeyPressMask | VisibilityChangeMask |
 	                 ButtonPressMask | PointerMotionMask;
-	win = XCreateWindow(dpy, parentwin, x, y, mw, mh, 0,
-	                    CopyFromParent, CopyFromParent, CopyFromParent,
-	                    CWOverrideRedirect | CWBackPixel | CWEventMask, &swa);
+    if(border){
+	    win = XCreateWindow(dpy, parentwin, x, y, mw, mh, border_width,
+	                        CopyFromParent, CopyFromParent, CopyFromParent,
+	                        CWOverrideRedirect | CWBackPixel | CWEventMask, &swa);
+	    XSetWindowBorder(dpy, win, scheme[SchemeSel][ColBg].pixel);
+    }else{
+        win = XCreateWindow(dpy, parentwin, x, y, mw, mh, 0,
+	                        CopyFromParent, CopyFromParent, CopyFromParent,
+	                        CWOverrideRedirect | CWBackPixel | CWEventMask, &swa);
+    }	XSetClassHint(dpy, win, &ch);
 	XSetClassHint(dpy, win, &ch);
 
 
@@ -963,7 +970,10 @@ main(int argc, char *argv[])
 			fast = 1;
 		else if (!strcmp(argv[i], "-c"))   /* centers dmenu on screen */
 			centered = 1;
-		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
+        else if (!strcmp(argv[i], "--border")){   /* show border around dmenu */
+            border = 1;
+			/*border_width = atoi(argv[++i]);*/
+        }else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
 		} else if (i + 1 == argc)
