@@ -18,6 +18,9 @@ static const char *colors[SchemeLast][2] = {
 };
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */
 static unsigned int lines      = 0;
+/* -h option; minimum height of a menu line */
+static unsigned int lineheight = 0;
+static unsigned int min_lineheight = 11;
 
 /*
  * Characters not considered part of a word while deleting words
@@ -26,6 +29,6 @@ static unsigned int lines      = 0;
 static const char worddelimiters[] = " ";
 
 /* Size of the window border */
-static unsigned int border_width = 2;
+static unsigned int border_width = 3;
 /* If set to 0, use --border to get above specified border width, set to 1 to not have tp use --border parameter everytime */
 static unsigned int border = 0;
