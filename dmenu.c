@@ -164,9 +164,10 @@ drawitem(struct item *item, int x, int y, int w)
 static void
 drawmenu(void)
 {
-	unsigned int curpos;
+	unsigned int curpos, oldcurlen;
 	struct item *item;
 	int x = 0, y = 0, fh = drw->fonts->h, w;
+	int curlen, rcurlen;
 
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	drw_rect(drw, 0, 0, mw, mh, 1, 1);
@@ -177,19 +178,27 @@ drawmenu(void)
 	}
 	/* draw input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
-	drw_setscheme(drw, scheme[SchemeNorm]);
-	drw_text(drw, x, 0, w, bh, lrpad / 2, text, 0);
+	w -= lrpad / 2;
+    int x_ = x;
+	x += lrpad / 2;
 
-	curpos = TEXTW(text) - TEXTW(&text[cursor]);
-	if ((curpos += lrpad / 2 - 1) < w) {
-		drw_setscheme(drw, scheme[SchemeNorm]);
-		drw_rect(drw, x + curpos, 2 + (bh - fh) / 2, 2, fh - 4, 1, 0);
-	}
+	rcurlen = drw_fontset_getwidth(drw, text + cursor);
+	curlen = drw_fontset_getwidth(drw, text) - rcurlen;
+	curpos += curlen - oldcurlen;
+	curpos = MIN(w, MAX(0, curpos));
+	curpos = MAX(curpos, w - rcurlen);
+	curpos = MIN(curpos, curlen);
+	oldcurlen = curlen;
+
+	drw_setscheme(drw, scheme[SchemeNorm]);
+	drw_text_align(drw, x, 0, curpos, bh, text, cursor, AlignR);
+	drw_text_align(drw, x + curpos, 0, w - curpos, bh, text + cursor, strlen(text) - cursor, AlignL);
+	drw_rect(drw, x + curpos - 1, 2, 2, bh - 4, 1, 0);
 
 	if (lines > 0) {
 		/* draw vertical list */
 		for (item = curr; item != next; item = item->right)
-			drawitem(item, x - promptw, y += bh, mw);
+			drawitem(item, x_ - promptw, y += bh, mw);   // x_ so that it doesn't leave an awkward gap on the left
 	} else if (matches) {
 		/* draw horizontal list */
 		x += inputw;
@@ -844,8 +853,8 @@ setup(void)
 					break;
 
 		if (centered) {
-			mw = MIN(MAX(max_textw() + promptw, min_width), info[i].width);
-			x = info[i].x_org + ((info[i].width  - mw) / 2);
+			mw = MIN(MAX(max_textw() + promptw, min_width), info[i].width) - 14;
+			x = info[i].x_org + ((info[i].width - mw) / 2) - 2;
 			y = info[i].y_org + ((info[i].height - mh) / 2);
 		} else {
 		x = info[i].x_org + dmx;
