@@ -29,6 +29,6 @@ static unsigned int min_lineheight = 11;
 static const char worddelimiters[] = " ";
 
 /* Size of the window border */
-static unsigned int border_width = 3;
+static unsigned int border_width = 2;
 /* If set to 0, use --border to get above specified border width, set to 1 to not have tp use --border parameter everytime */
 static unsigned int border = 0;
